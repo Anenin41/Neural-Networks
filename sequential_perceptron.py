@@ -2,14 +2,15 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Sun 30 Dec 2025 @ 10:30:38 +0100
-# Modified: Mon 01 Dec 2025 @ 13:21:01 +0100
+# Modified: Mon 01 Dec 2025 @ 22:37:40 +0100
 
 # Packages
 import numpy as np
 from typing import Dict
 
+# Custom dictionary structure to store the results of the perceptron algorithm.
+# Defined as global here to also be imported in other scripts as well.
 Result = Dict[str, np.ndarray | bool | int]
-
 
 def rosenblatt_train(X : np.ndarray, 
                      y : np.ndarray,
@@ -38,29 +39,36 @@ def rosenblatt_train(X : np.ndarray,
             "sweeps"    : int
             "updates"   : int
     """
+    # Make sure that input is a numpy nd.array hosting floats
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float)
 
+    # Fetch the shape of the feature matrix
     P, N = X.shape
-
+    
+    # Possibility to also define a custom learning rate, or default back to the
+    # one that was presented on the lectures.
     if learning_rate is None:
         learning_rate = 1.0 / N
 
+    # Initialize the storage vector for the weights, ensure floats
     w: np.ndarray = np.zeros(N, dtype=float)
-    n_updates: int = 0
+    n_updates: int = 0                          # same for the number of updates
 
+    # Run through the epochs. Nested loop O(n^2). 
     for sweep in range(1, n_max + 1):
         for mu in range(P):
-            xi = X[mu]
-            S = float(y[mu])
-            E = float(np.dot(w, xi) * S)
-
+            xi = X[mu]                      # fetch feature vector
+            S = float(y[mu])                # fetch its label
+            E = float(np.dot(w, xi) * S)    # compute local potential
+            
+            # Update the weights based on the local potential criterion
             if E <= 0.0:
                 w = w + learning_rate * xi * S
                 n_updates += 1
 
         # Check separability after each full sweep
-        margins: np.ndarray = y * (X @ w)
+        margins: np.ndarray = y * (X @ w)           # Vector * (Matrix * Vector)
         if np.all(margins > 0.0):
             return {
                     "weights"   : w, 

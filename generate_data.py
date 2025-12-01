@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Sat 29 Dec 2025 @ 11:34:07 +0100
-# Modified: Mon 01 Dec 2025 @ 13:20:36 +0100
+# Modified: Mon 01 Dec 2025 @ 22:41:45 +0100
 
 # Packages
 import numpy as np
@@ -79,7 +79,7 @@ def save_as_csv(X: np.ndarray, y: np.ndarray, path: Path) -> None:
         science applications.
     """
     # Resolve absolute paths, e.g. ~/data/set.csv -> /home/user/data/set.csv (in
-    # Linux), I don't know what this does on Windows.
+    # Linux). Similar functionality in Windows.
     path = path.expanduser().resolve()
 
     # Reshape y from (P,) to (P, 1) so it can be stacked horizontaly as a column

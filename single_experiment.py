@@ -3,12 +3,13 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 13:13:15 +0100
-# Modified: Mon 01 Dec 2025 @ 22:14:38 +0100
+# Modified: Mon 01 Dec 2025 @ 22:39:20 +0100
 
 # Packages
 from typing import Tuple
 import numpy as np
 
+# Custom Modules
 from generate_data import generate_dataset
 from sequential_perceptron import rosenblatt_train, Result
 
@@ -35,15 +36,17 @@ def run_single_dataset(P : int,
         y : np.ndarray
         result : TypedDict data structure defined in 'sequential_perceptron.py'
     """
-    # Ensure that everything is encoded through numpy ndarrays (efficient & fast)
+    # Ensure that everything is encoded through numpy ndarrays
+    # numpy is written in C++, very efficient and fast
     X: np.ndarray
     y: np.ndarray
-    X, y = generate_dataset(P, N, seed=seed)
-    result: Result = rosenblatt_train(X, y, n_max=n_max)
+    X, y = generate_dataset(P, N, seed=seed)                # generate dataset
+    result: Result = rosenblatt_train(X, y, n_max=n_max)    # converged?, weights
     
     return X, y, result
 
 if __name__ == "__main__":
+    # Simple setup to see if everything works
     P = 50
     N = 20
     n_max = 100

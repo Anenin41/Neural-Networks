@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Mon 01 Dec 2025 @ 22:09:45 +0100
+# Modified: Mon 01 Dec 2025 @ 22:48:13 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
@@ -23,8 +23,8 @@ def estimate_Q(N : int,
                ) -> Tuple[List[float], List[float]]:
     """
     This is the main script of the assignment. It call all the other functions of
-    the repository, and performs the computer experiments as described in (d) of
-    the Assignment.
+    the repository, and performs the computer experiments necessary to solve the
+    assignment sheet. 
 
     Args:
         N : int
@@ -56,36 +56,43 @@ def estimate_Q(N : int,
     q_ls_vals: List[float] = []
 
     if verbose:
-        print("P\talpha\tQ_ls\t(successes / n_datasets)")
-
+        print("P\talpha\tQ_ls\t(successes / n_datasets)")   #\t = 1 tab space
+    
+    # Number of feature vectors
     for P in P_values:
-        successes: int = 0
+        successes: int = 0  
 
+        # Omit iterable, not necessary here
         for _ in range(n_datasets):
-            # Fresh seed per dataset for reproducibility
+            # Fresh seed per dataset
             seed_dataset: int | None
             if base_seed is not None:
-                seed_dataset = int(rng.integers(0, 2**32 - 1))
+                seed_dataset = int(rng.integers(0, 2**32 - 1))  # pick one
             else:
                 seed_dataset = None
-
+            
+            # Ensure np.ndarray structure for speed
             X: np.ndarray
             y: np.ndarray
             X, y = generate_dataset(P, N, seed=seed_dataset)
             result: Result = rosenblatt_train(X, y, n_max=n_max)
-
+            
             if result["converged"]:
                 successes += 1
-
+        
+        # Compute "local" alpha and Q_{ls}
         alpha: float = P / float(N)
         q_ls: float = successes / float(n_datasets)
-
+        
+        # Append them on the storage list
         alphas.append(alpha)
         q_ls_vals.append(q_ls)
         
+        # Print results in CLI if verbose is True
         if verbose:
             print(f"{P}\t{alpha:.3f}\t{q_ls:.3f}\t({successes} / {n_datasets})")
-
+    
+    # Plot the alpha curve as well
     if plot:
         plt.figure()
         plt.plot(alphas, q_ls_vals, marker="o")
@@ -97,9 +104,10 @@ def estimate_Q(N : int,
 
     return alphas, q_ls_vals
 
+# To run the experiment for different values, simply modify the following numbers
 if __name__ == "__main__":
     N = 20
-    P_values = [5, 10, 15, 20, 25, 30]
+    P_values = [2, 5, 10, 15, 20, 25, 30]
     estimate_Q(
             N,
             P_values,
@@ -107,4 +115,5 @@ if __name__ == "__main__":
             n_max=500,
             base_seed=None,
             plot=True,
+            verbose=True,
             )
