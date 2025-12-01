@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Tue 25 Nov 2025 @ 19:16:36 +0100
-# Modified: Tue 25 Nov 2025 @ 19:21:03 +0100
+# Modified: Mon 01 Dec 2025 @ 11:48:01 +0100
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -32,6 +32,8 @@ share/python-wheels/
 *.egg
 MANIFEST
 *.pyc
+neural_networks
+data/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
