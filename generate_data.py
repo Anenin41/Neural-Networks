@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Sat 29 Dec 2025 @ 11:34:07 +0100
-# Modified: Mon 01 Dec 2025 @ 22:41:45 +0100
+# Modified: Wed 03 Dec 2025 @ 11:38:22 +0100
 
 # Packages
 import numpy as np
