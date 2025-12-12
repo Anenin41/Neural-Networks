@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Sun 30 Dec 2025 @ 10:30:38 +0100
-# Modified: Fri 12 Dec 2025 @ 17:27:09 +0100
+# Modified: Fri 12 Dec 2025 @ 20:06:29 +0100
 
 # Packages
 import numpy as np
@@ -15,7 +15,8 @@ Result = Dict[str, np.ndarray | bool | int]
 def rosenblatt_train(X : np.ndarray, 
                      y : np.ndarray,
                      n_max : int,
-                     learning_rate : float | None = None) -> Result:
+                     learning_rate : float | None = None,
+                     ) -> Result:
     """
     This function runs the Rosenblatt training algorithm as is explained in
     exercise (b) of the assignment.
@@ -66,6 +67,7 @@ def rosenblatt_train(X : np.ndarray,
             if E <= 0.0:
                 w = w + learning_rate * xi * S
                 n_updates += 1
+                updated_this_sweep = True
 
     # Check separability after each full sweep
     margins: np.ndarray = y * (X @ w)           # Vector * (Matrix * Vector)
