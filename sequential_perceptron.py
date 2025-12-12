@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Sun 30 Dec 2025 @ 10:30:38 +0100
-# Modified: Fri 12 Dec 2025 @ 19:42:39 +0100
+# Modified: Fri 12 Dec 2025 @ 20:06:29 +0100
 
 # Packages
 import numpy as np
@@ -58,8 +58,6 @@ def rosenblatt_train(X : np.ndarray,
 
     # Run through the epochs. Nested loop O(n^2). 
     for sweep in range(1, n_max + 1):
-        updated_this_sweep = False
-
         for mu in range(P):
             xi = X[mu]                      # fetch feature vector
             S = float(y[mu])                # fetch its label
@@ -71,16 +69,15 @@ def rosenblatt_train(X : np.ndarray,
                 n_updates += 1
                 updated_this_sweep = True
 
-            # Check separability after each full sweep
-            # Early stop, perfect classification or no more changes
-            margins: np.ndarray = y * (X @ w)           # Vector * (Matrix * Vector)
-            if np.all(margins > 0.0) or not updated_this_sweep:
-                return {
-                        "weights"   : w, 
-                        "converged" : True,
-                        "sweeps"    : sweep,
-                        "updates"   : n_updates,
-                        }
+    # Check separability after each full sweep
+    margins: np.ndarray = y * (X @ w)           # Vector * (Matrix * Vector)
+    if np.all(margins > 0.0):
+        return {
+                "weights"   : w, 
+                "converged" : True,
+                "sweeps"    : sweep,
+                "updates"   : n_updates,
+                }
 
     # No separating solution was reached within n_max sweeps
     return {

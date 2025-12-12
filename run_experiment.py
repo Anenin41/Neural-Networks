@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Fri 12 Dec 2025 @ 19:56:43 +0100
+# Modified: Fri 12 Dec 2025 @ 20:08:18 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
@@ -144,15 +144,15 @@ def estimate_Q(N : int,
 
 # To run the experiment for different values, simply modify the following numbers
 if __name__ == "__main__":
-    N = 400
+    N = 40
     P_values = [int(a * N) for a in np.arange(0.75, 3.0, 0.25)]
     estimate_Q(
             N,
             P_values,
             n_datasets=100,
             n_max=100,
-            base_seed=42,
-            plot=True,
+            base_seed=None,
+            plot=False,
             verbose=True,
             n_workers=8,
             )
