@@ -2,16 +2,26 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Fri 12 Dec 2025 @ 17:30:06 +0100
+# Modified: Fri 12 Dec 2025 @ 18:31:01 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
+from concurrent.futures import ProcessPoolExecutor
 
 # Custom modules
 from generate_data import generate_dataset
 from sequential_perceptron import rosenblatt_train, Result
+
+def _single_run(args: tuple[int, int, int, int | None]) -> int:
+    """
+    Litle helper function for debugging, nothing interesting here.
+    """
+    P, N, n_max, seed = args
+    X, y = generate_dataset(P, N, seed=seed)
+    result: Result = rosenblatt_train(X, y, n_max=n_max)
+    return result["converged"]
 
 def estimate_Q(N : int,
                P_values : Iterable[int],
@@ -20,6 +30,7 @@ def estimate_Q(N : int,
                base_seed : int | None = None,
                plot: bool = False,
                verbose: bool = True,
+               n_workers: int | None = None,
                ) -> Tuple[List[float], List[float]]:
     """
     This is the main script of the assignment. It call all the other functions of
@@ -60,29 +71,33 @@ def estimate_Q(N : int,
     
     # Number of feature vectors
     for P in P_values:
-        successes: int = 0  
+        successes: int = 0
+
+        # Pre-generate seeds for all datasets
+        seeds: list[int | None] = []
 
         # Omit iterable, not necessary here
         for _ in range(n_datasets):
-            # Fresh seed per dataset
-            seed_dataset: int | None
             if base_seed is not None:
                 seed_dataset = int(rng.integers(0, 2**32 - 1))  # pick one
+                seeds.append(seed_dataset)
             else:
-                seed_dataset = None
+                seeds.append(None)
+
+        args_list = [(P, N, n_max, s) for s in seeds]
+
+        if n_workers is None or n_workers == 1:
+            # sequential
+            results = [_single_run(a) for a in args_list]
+        else:
+            # paraller across CPU cores
+            with ProcessPoolExecutor(max_workers=n_workers) as ex:
+                results = list(ex.map(_single_run, args_list))
+
+        successes = int(sum(results))
+        alpha = P / float(N)
+        q_ls = successes / float(n_datasets)
             
-            # Ensure np.ndarray structure for speed
-            X: np.ndarray
-            y: np.ndarray
-            X, y = generate_dataset(P, N, seed=seed_dataset)
-            result: Result = rosenblatt_train(X, y, n_max=n_max)
-            
-            if result["converged"]:
-                successes += 1
-        
-        # Compute "local" alpha and Q_{ls}
-        alpha: float = P / float(N)
-        q_ls: float = successes / float(n_datasets)
         
         # Append them on the storage list
         alphas.append(alpha)
@@ -117,8 +132,9 @@ if __name__ == "__main__":
             N,
             P_values,
             n_datasets=100,
-            n_max=100,
+            n_max=1000,
             base_seed=None,
             plot=True,
             verbose=True,
+            n_workers=4
             )
