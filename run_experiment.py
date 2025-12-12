@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Fri 12 Dec 2025 @ 18:31:01 +0100
+# Modified: Fri 12 Dec 2025 @ 19:56:43 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
@@ -16,21 +16,40 @@ from sequential_perceptron import rosenblatt_train, Result
 
 def _single_run(args: tuple[int, int, int, int | None]) -> int:
     """
-    Litle helper function for debugging, nothing interesting here.
+    Instead of modifying the function of single_experiment.py, I found it easier
+    to create a new helper function to serve the estimate_Q(...) process. 
+    
+    Functionality is basically the same as running the training algorithm only 
+    for a specific combination of argument variables. The only difference is that
+    this function only returns a boolean integer, to flag corvergence.
+
+    Args:
+        P : int
+            Number of patterns.
+        N : int
+            Pattern dimension.
+        n_max : int
+            Maximum number of sweeps (epochs) through the data.
+        seed : int or None
+            Random seed for data generation.
+
+    Returns:
+        Boolean integer flag for checking convergence (1) or not convergence (0)
+        respectively.
     """
     P, N, n_max, seed = args
     X, y = generate_dataset(P, N, seed=seed)
     result: Result = rosenblatt_train(X, y, n_max=n_max)
-    return result["converged"]
+    return int(result["converged"])
 
 def estimate_Q(N : int,
                P_values : Iterable[int],
                n_datasets : int,
                n_max : int,
                base_seed : int | None = None,
+               n_workers: int | None = None,
                plot: bool = False,
                verbose: bool = True,
-               n_workers: int | None = None,
                ) -> Tuple[List[float], List[float]]:
     """
     This is the main script of the assignment. It call all the other functions of
@@ -49,6 +68,10 @@ def estimate_Q(N : int,
         base_seed : int or None
             Posibility to parse static seed for reproducibility of results. If no
             seed is parsed, it uses the global RNG state.
+        n_workers : int or None
+            Number of cores to use for parallel computations. If it is None or 1
+            then no parallelization takes place, and instead the script runs
+            sequentially
         plot : bool
             If true, plots Q_ls(alpha) vs alpha.
         verbose : bool
@@ -71,8 +94,6 @@ def estimate_Q(N : int,
     
     # Number of feature vectors
     for P in P_values:
-        successes: int = 0
-
         # Pre-generate seeds for all datasets
         seeds: list[int | None] = []
 
@@ -87,17 +108,19 @@ def estimate_Q(N : int,
         args_list = [(P, N, n_max, s) for s in seeds]
 
         if n_workers is None or n_workers == 1:
-            # sequential
+            # Sequential computation
             results = [_single_run(a) for a in args_list]
         else:
-            # paraller across CPU cores
+            # Parallel computation across CPU cores
             with ProcessPoolExecutor(max_workers=n_workers) as ex:
                 results = list(ex.map(_single_run, args_list))
 
+        # Count how many successes (positive converge) the algorithm achieved
         successes = int(sum(results))
+
+        # Compute alpha and empirical probability for linear separability
         alpha = P / float(N)
         q_ls = successes / float(n_datasets)
-            
         
         # Append them on the storage list
         alphas.append(alpha)
@@ -121,20 +144,15 @@ def estimate_Q(N : int,
 
 # To run the experiment for different values, simply modify the following numbers
 if __name__ == "__main__":
-    N = 40
-    a = 0.20
-    P_values = [] 
-    while a < 3.0:
-        p_val = int(a * N)
-        P_values.append(p_val)
-        a += 0.20
+    N = 400
+    P_values = [int(a * N) for a in np.arange(0.75, 3.0, 0.25)]
     estimate_Q(
             N,
             P_values,
             n_datasets=100,
-            n_max=1000,
-            base_seed=None,
+            n_max=100,
+            base_seed=42,
             plot=True,
             verbose=True,
-            n_workers=4
+            n_workers=8,
             )
