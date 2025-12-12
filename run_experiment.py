@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Wed 03 Dec 2025 @ 11:38:31 +0100
+# Modified: Fri 12 Dec 2025 @ 17:30:06 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
@@ -37,7 +37,7 @@ def estimate_Q(N : int,
             Maximum sweeps per training run.
         base_seed : int or None
             Posibility to parse static seed for reproducibility of results. If no
-            seed is parsed, it used the global RNG state.
+            seed is parsed, it uses the global RNG state.
         plot : bool
             If true, plots Q_ls(alpha) vs alpha.
         verbose : bool
@@ -106,13 +106,18 @@ def estimate_Q(N : int,
 
 # To run the experiment for different values, simply modify the following numbers
 if __name__ == "__main__":
-    N = 20
-    P_values = [2, 5, 10, 15, 20, 25, 30]
+    N = 40
+    a = 0.20
+    P_values = [] 
+    while a < 3.0:
+        p_val = int(a * N)
+        P_values.append(p_val)
+        a += 0.20
     estimate_Q(
             N,
             P_values,
             n_datasets=100,
-            n_max=500,
+            n_max=100,
             base_seed=None,
             plot=True,
             verbose=True,

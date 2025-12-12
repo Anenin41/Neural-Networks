@@ -3,7 +3,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 13:13:15 +0100
-# Modified: Wed 03 Dec 2025 @ 11:38:49 +0100
+# Modified: Fri 12 Dec 2025 @ 17:21:05 +0100
 
 # Packages
 from typing import Tuple
@@ -47,8 +47,8 @@ def run_single_dataset(P : int,
 
 if __name__ == "__main__":
     # Simple setup to see if everything works
-    P = 50
-    N = 20
+    P = 6
+    N = 3
     n_max = 100
     seed = 0
     X, y, res = run_single_dataset(P, N, n_max=n_max, seed=seed)
