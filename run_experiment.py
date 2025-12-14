@@ -2,11 +2,12 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Sun 14 Dec 2025 @ 19:23:40 +0100
+# Modified: Sun 14 Dec 2025 @ 19:36:02 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
 
@@ -151,8 +152,12 @@ def estimate_Q(N : int,
         plt.ylabel("Q(alpha)")
         plt.title("Empirical probability of linear separabilit")
         plt.grid(True)
-        fname = f"N_{N}_P_{P}_a_{alpha}_datasets_{n_datasets}_budget_{n_max}"
-        plt.savefig(f"data/figures/{fname}")
+        if os.path.exists("data/figures/"):
+            fname = f"data/figures/N_{N}_P_{P}_datasets_{n_datasets}_budget_{n_max}.png"
+        else:
+            os.makedirs("data/figures")
+            fname = f"data/figures/N_{N}_P_{P}_datasets_{n_datasets}_budget_{n_max}.png"
+        plt.savefig(fname)
 
     return alphas, q_ls_vals
 
@@ -160,11 +165,11 @@ def estimate_Q(N : int,
 if __name__ == "__main__":
     N_values = [20, 40]
     for N in N_values:
-        P_values = [int(a * N) for a in np.arange(0.75, 3.0, 0.25)]
+        P_values = [int(a * N) for a in np.arange(0.75, 3.25, 0.25)]
         estimate_Q(
                 N,
                 P_values,
-                n_datasets=100,
+                n_datasets=50,
                 n_max=100,
                 base_seed=None,
                 plot=False,
