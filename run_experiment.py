@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Fri 12 Dec 2025 @ 20:55:19 +0100
+# Modified: Sun 14 Dec 2025 @ 19:23:40 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
@@ -49,6 +49,7 @@ def estimate_Q(N : int,
                base_seed : int | None = None,
                n_workers : int | None = None,
                plot: bool = False,
+               save: bool = False,
                verbose: bool = True,
                ) -> Tuple[List[float], List[float]]:
     """
@@ -74,6 +75,8 @@ def estimate_Q(N : int,
             sequentially.
         plot : bool
             If true, plots Q_ls(alpha) vs alpha.
+        save : bool
+            If true, saves the generated plots into `data/figures/`.
         verbose : bool
             When true, it prints the results of the experiment on the CLI.
 
@@ -140,20 +143,32 @@ def estimate_Q(N : int,
         plt.title("Empirical probability of linear separability")
         plt.grid(True)
         plt.show()
+    
+    if save:
+        plt.figure()
+        plt.plot(alphas, q_ls_vals, marker="o")
+        plt.xlabel("alpha = P/N")
+        plt.ylabel("Q(alpha)")
+        plt.title("Empirical probability of linear separabilit")
+        plt.grid(True)
+        fname = f"N_{N}_P_{P}_a_{alpha}_datasets_{n_datasets}_budget_{n_max}"
+        plt.savefig(f"data/figures/{fname}")
 
     return alphas, q_ls_vals
 
 # To run the experiment for different values, simply modify the following numbers
 if __name__ == "__main__":
-    N = 40
-    P_values = [int(a * N) for a in np.arange(0.75, 3.0, 0.25)]
-    estimate_Q(
-            N,
-            P_values,
-            n_datasets=100,
-            n_max=100,
-            base_seed=None,
-            plot=False,
-            verbose=True,
-            )
-
+    N_values = [20, 40]
+    for N in N_values:
+        P_values = [int(a * N) for a in np.arange(0.75, 3.0, 0.25)]
+        estimate_Q(
+                N,
+                P_values,
+                n_datasets=100,
+                n_max=100,
+                base_seed=None,
+                plot=False,
+                save=True,
+                verbose=True,
+                )
+    print("Experiment complete.")
