@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Sun 14 Dec 2025 @ 19:36:02 +0100
+# Modified: Sun 14 Dec 2025 @ 20:03:11 +0100
 
 # Packages
 from typing import Iterable, List, Tuple
@@ -172,6 +172,7 @@ if __name__ == "__main__":
                 n_datasets=50,
                 n_max=100,
                 base_seed=None,
+                n_workers=None,             # None or 1 is sequential
                 plot=False,
                 save=True,
                 verbose=True,
