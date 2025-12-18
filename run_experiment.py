@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Thu 18 Dec 2025 @ 14:42:52 +0100
+# Modified: Thu 18 Dec 2025 @ 15:31:49 +0100
 
 # Packages
 from typing import Iterable, List, Tuple, Dict
@@ -91,9 +91,9 @@ def compare_c_values(
     plt.legend()
 
     if save:
-        pmin, pmax = min(P_values), max(P_values)
+        pmin = min(P_values)
         os.makedirs("data/figures", exist_ok=True)
-        fname = f"data/figures/compare_c_N_{N}_P_{pmin}-{pmax}_datasets_{n_datasets}_budget_{n_max}.png"
+        fname = f"data/figures/compare_c_N_{N}_P_{pmin}_datasets_{n_datasets}_budget_{n_max}.png"
         plt.savefig(fname)
         print(f"Saved: {fname}")
 
@@ -219,8 +219,8 @@ def estimate_Q(N : int,
         plt.title("Empirical probability of linear separabilit")
         plt.grid(True)
         os.makedirs("data/figures", exist_ok=True)
-        pmin, pmax = min(P_values), max(P_values)
-        fname = f"data/figures/N_{N}_P_{pmin}-{pmax}_datasets_{n_datasets}_budget_{n_max}.png"
+        pmin = min(P_values)
+        fname = f"data/figures/N_{N}_P_{pmin}_datasets_{n_datasets}_budget_{n_max}.png"
         plt.savefig(fname)
         print(f"Saved: {fname}")
 

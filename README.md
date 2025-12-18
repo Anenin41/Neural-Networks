@@ -26,7 +26,7 @@ Written & tested using Python 3.12.3. Python 3.10+ recommended.
 - `run_experiment.py`
     This file holds the main numerical experiments:
     - `estimate_Q(...)` estimates the empirical probability for linear separability by running many independent datasets for each `P`.
-    - It supports (optional) parallel execution via `ProcessPoolExecutor`, which significantly reduced computational overhead.
+    - It supports (optional) parallel execution via `ProcessPoolExecutor`, which significantly reduces computational overhead.
     - `compare_c_values(...)` plots multiple empirical probability curves in one figure for different values of the threshold.
 
 - `testing.py`
