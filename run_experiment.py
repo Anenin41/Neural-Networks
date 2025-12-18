@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Thu 18 Dec 2025 @ 14:03:33 +0100
+# Modified: Thu 18 Dec 2025 @ 14:42:52 +0100
 
 # Packages
 from typing import Iterable, List, Tuple, Dict
@@ -14,6 +14,9 @@ from concurrent.futures import ProcessPoolExecutor
 # Custom modules
 from generate_data import generate_dataset
 from sequential_perceptron import rosenblatt_train, Result
+
+# Import globals
+from config import *
 
 def _single_run(args: tuple[int, int, int, float, int | None]) -> int:
     """
@@ -225,9 +228,7 @@ def estimate_Q(N : int,
 
 # To run the experiment for different values, simply modify the following numbers
 if __name__ == "__main__":
-    N_values = [20, 40]
-    c_values = [0.0, 0.1, 0.5, 1.0]
-
+    
     # VERY EXPENSIVE LOOP
     # for N in N_values:
     #   for c in c_values:  (inside compare_c_values)
@@ -235,16 +236,16 @@ if __name__ == "__main__":
     #           +++ added complexity to plot & show everything.
     # PLEASE DON'T FRY YOUR LAPTOP'S PROCESSOR
     for N in N_values:
-        P_values = [int(a * N) for a in np.arange(0.75, 3.25, 0.25)]
+        P_values = [int(a * N) for a in np.arange(a_min, a_max, a_step)]
         compare_c_values(
                 N,
                 P_values,
                 c_values = c_values,
-                n_datasets = 50,
-                n_max = 100,
-                base_seed = None,
-                n_workers = None,
-                save = True,
-                show = True,
+                n_datasets = n_datasets,
+                n_max = n_max,
+                base_seed = base_seed,
+                n_workers = n_workers,
+                save = save,
+                show = show,
                 )
     print("Experiment complete.")

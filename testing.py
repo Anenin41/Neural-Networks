@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 09:03:25 +0100
-# Modified: Wed 03 Dec 2025 @ 11:38:54 +0100
+# Modified: Thu 18 Dec 2025 @ 14:16:53 +0100
 
 # Packages
 from typing import List, Tuple
@@ -10,8 +10,8 @@ import numpy as np
 
 from generate_data import generate_dataset
 from sequential_perceptron import rosenblatt_train, Result
-from run_perceptron import run_single_dataset
-from capacity_experiment import estimate_Q
+from single_experiment import run_single_dataset
+from run_experiment import estimate_Q, compare_c_values
 
 def main() -> None:
     """
@@ -19,9 +19,11 @@ def main() -> None:
     """
     print("Running tests...\n")
     test_generate_data()
-    test_rosenblatt_train()
+    test_rosenblatt_train_default_c()
+    test_rosenblatt_train_nonzero_c_runs()
     test_run_single_dataset()
     test_estimate_Q()
+    test_compare_c_values()
     print("\nAll tests completed successfully.")
 
 def test_generate_data() -> None:
@@ -44,9 +46,9 @@ def test_generate_data() -> None:
 
     print("test_generate_data: OK")
 
-def test_rosenblatt_train() -> None:
+def test_rosenblatt_train_default_c() -> None:
     """
-    Sanity check for rosenblatt_train on a small problem.
+    Sanity check for rosenblatt_train on a small problem (with c=0.0).
     """
     P: int = 20
     N: int = 10
@@ -70,6 +72,27 @@ def test_rosenblatt_train() -> None:
 
     print("test_rosenblatt_train: OK ( converged =", result["converged"], ")")
 
+def test_rosenblatt_train_nonzero_c_runs() -> None:
+    """
+    Sanity Check: rosenblatt_train should run with non-zero c.
+    DO NOT assert a direction of change (problem-dependent), only that it runs
+    and returns a valid result structure.
+    """
+    P: int = 20
+    N: int = 10
+    X, y = generate_dataset(P, N, seed=2)
+
+    result: Result = rosenblatt_train(X, y, n_max=50, c=0.5)
+
+    for key in ("weights", "converged", "sweeps", "updates"):
+        assert key in result, f"Missing key '{key}' in result"
+
+    assert result["weights"].shape == (N,)
+    assert isinstance(result["converged"], bool)
+
+    print("test_rosenblatt_train_nonzero_c_runs: OK ( converged =", result["converged"], ")")
+
+
 def test_run_single_dataset() -> None:
     """
     Sanity check for the run_perceptron script.
@@ -80,7 +103,7 @@ def test_run_single_dataset() -> None:
     X: np.ndarray
     y: np.ndarray
     res: Result
-    X, y, res = run_single_dataset(P, N, n_max=100, seed=2)
+    X, y, res = run_single_dataset(P, N, n_max=100, seed=3)
 
     assert X.shape == (P, N)
     assert y.shape == (P,)
@@ -91,7 +114,7 @@ def test_run_single_dataset() -> None:
 
 def test_estimate_Q() -> None:
     """
-    Sanity check estimate_Q for a small experiment.
+    Sanity check estimate_Q for a small experiment with threshold c parsed.
     """
     N: int = 10
     P_values: List[int] = [5, 10, 15]
@@ -104,7 +127,8 @@ def test_estimate_Q() -> None:
         P_values=P_values,
         n_datasets=5,       # keep it small and fast
         n_max=50,
-        base_seed=3,
+        c=0.1,              # required by function signature
+        base_seed=4,
         plot=False,
         verbose=False,
     )
@@ -118,6 +142,35 @@ def test_estimate_Q() -> None:
     print("test_estimate_q_ls: OK")
     print(" - alphas =", alphas)
     print(" - Q_ls(alpha) =", q_ls_values)
+
+def test_compare_c_values() -> None:
+    """
+    Sanity check compare_c_values for small experiment.
+    """
+    N: int = 10
+    P_values: List[int] = [5, 10, 15]
+    c_values = [0.0, 0.5]
+
+    results = compare_c_values(
+        N=N,
+        P_values=P_values,
+        c_values=c_values,
+        n_datasets=3,
+        n_max=30,
+        base_seed=5,
+        n_workers=None,
+        save=False,
+        show=False,
+    )
+
+    assert set(results.keys()) == set(map(float, c_values))
+    for c in c_values:
+        alphas, qvals = results[float(c)]
+        assert len(alphas) == len(P_values)
+        assert len(qvals) == len(P_values)
+        assert all(0.0 <= q <= 1.0 for q in qvals)
+
+    print("test_compare_c_values: OK")
 
 
 if __name__ == "__main__":

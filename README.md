@@ -2,33 +2,39 @@
 This repository contains the Python code that solves Assignment 1. In this `README` file, you will find instructions on how to install the dependencies needed to run the code, as well as documentation as to what each script does.
 
 # How to Run
+Written & tested using Python 3.12.3. Python 3.10+ recommended.
 1. First create a local Python virtual environment to install the dependencies by running the command `python3 -m venv <your_name_choice>`.[^1]
-2. Run `pip install -r requirements.txt`.
+2. Run `pip install -r requirements.txt`.[^2]
 3. Run `python3 testing.py` to ensure that all scripts are running properly and that the commands above were completed successfully.
 4. You are ready to go! Run each Python file with `python3 script.py`.
 
-## `generate_data.py`
-**Corresponding Exercise:** (a)
+# Project Structure
 
-This script implements Exercise (a). In generates a synthetic dataset with i.i.d. Gaussian feature vectors and random labels in `{+1, -1}`. It also includes a helper function to save any generated dataset to CSV with one column per feature and a final `label` column.
+- `generate_data.py`
+    Generates synthetic datasets: `X ~ N(0,1)` and "binary" labels `y in {+1, -1}`.
 
-## `sequential_perceptron.py`
-**Corresponding Exercise:** (b) & (c)
+- `sequential_perceptron.py`
+    Implements the Rosenblatt training algorithm:
+    - Local potential per sample: `E_mu = y_mu * (w, xi_mu)`
+    - Update condition: update if `E_mu <= c`
+        - `c = 0.0` gives the standard perceptron update on misclassified points.
+        - `c > 0.0` also updates on correctly classified but low-margin points.
 
-This script implements the Rosenblatt perceptron learning rule as is asked for Exercises (b) and (c). Given `X` and `y`, it runs sequential training over at most `n_max` sweeps (epochs) with the same update formula as in the lecture notes. The weights update based on the value of the local potential. Finally, it returns a dictionary with the final weight vector, convergence flag, number of sweeps, and number of updates.
+- `single_experiment.py`
+    At this stage of the development, this is a helper file and was used to manually play-test if the perceptron training algorithm was running properly. It can generate one dataset and run training on it once.
 
-## `single_experiment.py`
-**Corresponding Exercise:** (c)
+- `run_experiment.py`
+    This file holds the main numerical experiments:
+    - `estimate_Q(...)` estimates the empirical probability for linear separability by running many independent datasets for each `P`.
+    - It supports (optional) parallel execution via `ProcessPoolExecutor`, which significantly reduced computational overhead.
+    - `compare_c_values(...)` plots multiple empirical probability curves in one figure for different values of the threshold.
 
-This script wraps up the full pipeline of "generate one random dataset + train the perceptron once". It can be used to run the the learning procedure on custom-made datasets and when it is run as script, a set of basic statistics is returned on the command line interface.
+- `testing.py`
+    Sanity checks that ensure the logic of these files is sound. Note that the output of these files are not really validated here. 
 
-## `run_experiment.py`
-**Corresponding Exercise:** (d)
+- `config.py`
+    A Python file which allows fast access to the experiment variables used in `run_experiment.py`. These are passed around in the document as global variables.
 
-This file implements Exercise (d). The function `estimate_Q(...)` repeats the perceptron training procedure for many independently generated datasets. It estimates the empirical success probability `Q(a)` as a function of `a = P/N`. Optionally, it can print these results to the console, and/or plot `Q(a)`.
+[^1]: This command is different in Windows. I am not entirely familiar with it, but follow [this guide](https://python.land/virtual-environments/virtualenv) if you are having trouble.
 
-## `testing.py`
-
-Contains lightweight sanity tests for all components. It checks dataset generation, the core Rosenblatt training routine, the single-dataset pipeline, and the capacity experiment, ensuring the logic of the code is sound, data types are correct and probability ranges don't violate the mathematics. Running this script executes all tests and reports success/failure in the terminal through a number of  `assert` commands. 
-
-[^1]: You can skip this part if you are using a global virtual environment to handle your Python dependencies. Be aware that when you run the `pip install -r requirements.txt` command, the process will update the respective modules globally, and might cause compatibility issues with other scripts. 
+[^2]: If you use a global Python virtual environment, this command will forcefully update your (probably) already installed modules. 
