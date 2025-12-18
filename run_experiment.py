@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Thu 18 Dec 2025 @ 15:31:49 +0100
+# Modified: Thu 18 Dec 2025 @ 16:10:40 +0100
 
 # Packages
 from typing import Iterable, List, Tuple, Dict
@@ -77,8 +77,8 @@ def compare_c_values(
                 c=c,
                 base_seed=base_seed,
                 n_workers=n_workers,
-                plot=False,     # we handle plotting here
-                save=False,     # we handle saving here
+                plot=False,             # Handle plotting here
+                save=False,             # Handle saving here
                 verbose=True,
                 )
         results[float(c)] = (alphas, q_ls_vals)
@@ -86,14 +86,14 @@ def compare_c_values(
 
     plt.xlabel("alpha = P/N")
     plt.ylabel("Q_ls(alpha)")
-    plt.title(f"Empirical Probability of Linear Separability (N={N}, datasets={n_datasets}, budget={n_max})")
+    plt.title(f"Probability of Linear Separability (N={N}, sets={n_datasets}, budget={n_max})")
     plt.grid(True)
     plt.legend()
 
     if save:
         pmin = min(P_values)
         os.makedirs("data/figures", exist_ok=True)
-        fname = f"data/figures/compare_c_N_{N}_P_{pmin}_datasets_{n_datasets}_budget_{n_max}.png"
+        fname = f"data/figures/N_{N}_P_{pmin}_datasets_{n_datasets}_budget_{n_max}.png"
         plt.savefig(fname)
         print(f"Saved: {fname}")
 
