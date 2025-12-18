@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Sun 30 Dec 2025 @ 10:30:38 +0100
-# Modified: Fri 12 Dec 2025 @ 20:06:29 +0100
+# Modified: Thu 18 Dec 2025 @ 13:39:09 +0100
 
 # Packages
 import numpy as np
@@ -16,6 +16,7 @@ def rosenblatt_train(X : np.ndarray,
                      y : np.ndarray,
                      n_max : int,
                      learning_rate : float | None = None,
+                     c : float = 0.0, 
                      ) -> Result:
     """
     This function runs the Rosenblatt training algorithm as is explained in
@@ -32,6 +33,10 @@ def rosenblatt_train(X : np.ndarray,
             This is the coefficient in front of the second term at the update
             rule. If None, then 1/N is chosen, the default choice from the 
             assignment.
+        c : float
+            For c = 0, the margin is the standard perceptron where the local
+            potential E <= 0. For different values of c, the update also happens
+            on low-margin points (obv).
 
     Returns:
         result : dictionary with keys
@@ -64,7 +69,7 @@ def rosenblatt_train(X : np.ndarray,
             E = float(np.dot(w, xi) * S)    # compute local potential
             
             # Update the weights based on the local potential criterion
-            if E <= 0.0:
+            if E <= c:
                 w = w + learning_rate * xi * S
                 n_updates += 1
                 updated_this_sweep = True
