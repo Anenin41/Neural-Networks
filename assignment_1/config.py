@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Thu 18 Dec 2025 @ 14:32:27 +0100
-# Modified: Thu 18 Dec 2025 @ 14:46:00 +0100
+# Modified: Mon 12 Jan 2026 @ 21:46:36 +0100
 
 # IMPORTANT: In general, be mindful of increasing the following numbers too high.
 # The Python module `run_experiment.py` was built with convenience in mind to 

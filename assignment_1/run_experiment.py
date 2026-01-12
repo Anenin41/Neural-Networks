@@ -2,11 +2,12 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Thu 18 Dec 2025 @ 16:10:40 +0100
+# Modified: Mon 12 Jan 2026 @ 21:44:20 +0100
 
 # Packages
 from typing import Iterable, List, Tuple, Dict
 import numpy as np
+from math import comb
 import os
 import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
@@ -45,6 +46,25 @@ def _single_run(args: tuple[int, int, int, float, int | None]) -> int:
     X, y = generate_dataset(P, N, seed=seed)
     result: Result = rosenblatt_train(X, y, n_max=n_max, c=c)
     return int(result["converged"])
+
+def P_ls_finite(P: int, N: int) -> float:
+    """
+    Finite-N theoretical prediction for the probability of linear separability
+    as a function of alpha = P/N.
+
+    For the classic perceptron, the asymptotic prediction is a sharp 
+    transition at alpha_c = 2 as follows:
+        P_ls(P, N) = 1 if P <= N,
+                   = 2^{1-P} * sum_{k=0}^{N-1} C(P-1, k) if P > N
+    
+    This function is plotted into the Q_ls curve after following the feedback 
+    from the TAs.
+    """
+    if P <= N:
+        return 1.0
+
+    s = sum(comb(P - 1, k) for k in range(N))
+    return (2.0 ** (1 - P)) * s
 
 def compare_c_values(
         N   :   int,
@@ -88,6 +108,19 @@ def compare_c_values(
     plt.ylabel("Q_ls(alpha)")
     plt.title(f"Probability of Linear Separability (N={N}, sets={n_datasets}, budget={n_max})")
     plt.grid(True)
+
+    # Plot P_ls(alpha) step at alpha_c = 2
+    P_sorted = sorted(P_values)
+    alpha_theory = [P / N for P in P_sorted]
+    P_ls_vals = [P_ls_finite(P, N) for P in P_sorted]
+
+    plt.plot(alpha_theory,
+             P_ls_vals,
+             linestyle="--",
+             linewidth=2,
+             color="black",
+             label="P_ls"
+             )
     plt.legend()
 
     if save:
@@ -226,7 +259,7 @@ def estimate_Q(N : int,
 
     return alphas, q_ls_vals
 
-# To run the experiment for different values, simply modify the following numbers
+# To run the experiment for different values, simply modify the config.py
 if __name__ == "__main__":
     
     # VERY EXPENSIVE LOOP
