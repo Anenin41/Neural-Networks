@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Wed 14 Jan 2026 @ 18:03:03 +0100
+# Modified: Wed 14 Jan 2026 @ 19:04:26 +0100
 
 # Packages
 from typing import Iterable, List, Tuple, Dict
@@ -70,7 +70,7 @@ def P_ls_finite(P: int, N: int) -> float:
     # Use scipy, to avoid integer overflow
     try:
         from scipy.stats import binom
-        pls = 2.0 * binom.cdf(k, n, 0.5)
+        pls = binom.cdf(k, n, 0.5)
         return float(min(1.0, max(0.0, pls)))
     except Exception:
         # Non-scipy fallback in case scipy is not available at Habrok
@@ -85,7 +85,7 @@ def P_ls_finite(P: int, N: int) -> float:
 
         m = max(log_terms)
         cdf = math.exp(m) * sum(math.exp(t - m) for t in log_terms)
-        return float(min(1.0, max(0.0, 2.0 * cdf)))
+        return float(min(1.0, max(0.0, cdf)))
 
 def compare_c_values(
         N   :   int,
