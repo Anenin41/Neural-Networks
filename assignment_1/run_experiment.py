@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 01 Dec 2025 @ 19:13:54 +0100
-# Modified: Mon 12 Jan 2026 @ 21:44:20 +0100
+# Modified: Wed 14 Jan 2026 @ 18:03:03 +0100
 
 # Packages
 from typing import Iterable, List, Tuple, Dict
@@ -57,14 +57,35 @@ def P_ls_finite(P: int, N: int) -> float:
         P_ls(P, N) = 1 if P <= N,
                    = 2^{1-P} * sum_{k=0}^{N-1} C(P-1, k) if P > N
     
-    This function is plotted into the Q_ls curve after following the feedback 
-    from the TAs.
+    This crude expression overflows when computed in Habrok. So in order to fix 
+    this, I turn everything into logs. For the math behind this, check the 
+    report.
     """
     if P <= N:
         return 1.0
 
-    s = sum(comb(P - 1, k) for k in range(N))
-    return (2.0 ** (1 - P)) * s
+    n = P - 1
+    k = N - 1
+
+    # Use scipy, to avoid integer overflow
+    try:
+        from scipy.stats import binom
+        pls = 2.0 * binom.cdf(k, n, 0.5)
+        return float(min(1.0, max(0.0, pls)))
+    except Exception:
+        # Non-scipy fallback in case scipy is not available at Habrok
+        import math
+        log2 = math.log(2.0)
+        lg_n1 = math.lgamma(n + 1.0)
+
+        log_terms = []
+        for kk in range(N):
+            logC = lg_n1 - math.lgamma(kk + 1.0) - math.lgamma((n - kk) + 1.0)
+            log_terms.append(logC - n * log2)
+
+        m = max(log_terms)
+        cdf = math.exp(m) * sum(math.exp(t - m) for t in log_terms)
+        return float(min(1.0, max(0.0, 2.0 * cdf)))
 
 def compare_c_values(
         N   :   int,
