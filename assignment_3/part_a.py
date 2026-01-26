@@ -2,7 +2,7 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 5 Jan 2026 @ 11:50:51 +0100
-# Modified: Sun 25 Jan 2026 @ 18:31:05 +0100
+# Modified: Mon 26 Jan 2026 @ 21:51:20 +0100
 
 # Packages
 from __future__ import annotations

@@ -16,7 +16,18 @@ This repository contains the assignments of the course, organized into self-cont
 │   ├── single_experiment.py
 │   └── testing.py
 ├── assignment_3
-├── README.md
+│   ├── config.py
+│   ├── part_a.py
+│   ├── part_b.py
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── results
+│   │   ├── learning_curves.png
+│   │   ├── weights_w1.png
+│   │   └── weights_w2.png
+│   ├── tau1.csv
+│   └── xi.csv
+└── README.md
 ```
 
 ## Assignments

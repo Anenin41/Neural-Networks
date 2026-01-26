@@ -77,7 +77,7 @@ The file `part_b.py` implements the second part of the assignment and is basical
 2. Bar plots of the final learned weight vectors `w_1, w_2`.
 
 ## Pipeline
-1. Load the provided data files `xi.csv` and `tau.csv` into scope.
+1. Load the provided data files `xi.csv` and `tau.csv` into scope. You will need to change the global variables in the `config.py` file to the appropriate paths in order for the function to correctly import the dataset.
 2. Split the data into a fixed training and test set partition following the desire of the user.
 3. Train the model with online SGD for a specified number of epochs.
 4. Measure training and test error once per epoch.
