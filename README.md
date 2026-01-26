@@ -30,6 +30,10 @@ This repository contains the assignments of the course, organized into self-cont
 └── README.md
 ```
 
+Notes:
+1. When running `part_b.py`, the code will try to import files `tau.csv` and `xi.csv` into scope. Make sure to properly update the paths in the respective `config.py` file, or just "dump" these CSVs into the respective folder as is showcased above.
+2. When `part_b.py` is finished, it will create `results/` folder in which the output `.png` images will be stored. 
+
 ## Assignments
 
 - **Assignment 1**: See [`assignment_1/README.md`](assignment_1/README.md)
