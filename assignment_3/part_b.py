@@ -2,11 +2,10 @@
 # Author: Konstantinos Garas
 # E-mail: kgaras041@gmail.com // k.gkaras@student.rug.nl
 # Created: Mon 5 Jan 2026 @ 16:11:10 +0100
-# Modified: Sun 25 Jan 2026 @ 18:30:52 +0100
+# Modified: Mon 26 Jan 2026 @ 21:04:34 +0100
 
 # Packages
 import os
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,22 +17,25 @@ from config import *
 
 def load_xi_tau(xi_path, tau_path):
     """
-    Load xi and tau from the CSV files. CSV stands for Comma Separated Values.
+    Load xi (inputs) and tau (targets) from the CSV files and normalize shapes.
 
-    The assignment provides:
-        - xi as a 50 x 5000 array (N=50 features, 5000 examples)
-        - tau as a vector of length 5000
+    The assignment provides xi as a (50, 5000) array: (N, num_examples).
+    Internally, a more common convention is used:
+        X: (num_examples, N)
+        y: (num_examples,)
 
-    This function standardizes them to the following dimensions:
-        - X of shape (num_examples, N)
-        - y of shape (num_examples,)
+    Heuristic check:
+        If X_raw looks like (N, num_examples) with N=50, then transpose it.
 
-    If in the case xi is stored as (N, num_examples) due to human error, the code
-    uses the transpose, i.e. (num_examples, N).
+    Args:
+        xi_path : str
+            Path to xi.csv.
+        tau_path : str
+            Path to tau.csv.
 
     Returns:
-        X : np.ndarray of shape (num_examples, N)
-        y : np.ndarray of shape (num_examples,)
+        X : np.ndarray of shape (num_examples, N), with floats for elements.
+        y : np.ndarray of shape (num_examples,), with floats for elements.
     """
     # Load them CSVs. An easier choice is to use the pandas package, but I find 
     # it to be overkill for just 2 commands.
@@ -46,7 +48,7 @@ def load_xi_tau(xi_path, tau_path):
 
     # Raise error if X is not 2D
     if X_raw.ndim != 2:
-        raise ValueError("xi must be a 2D array, current shape: %s" % (X_raw.shape,))
+        raise ValueError(f"xi must be 2D. Current shape={X_raw.shape}.")
 
     # This is a heuristic check on the dimensions of X. If you want to be 
     # absolutely sure about what X looks like, run some pandas command in an 
@@ -58,19 +60,30 @@ def load_xi_tau(xi_path, tau_path):
 
     if X.shape[0] != y.shape[0]:
         raise ValueError(
-                "Mismatch: X has %d examples but tau has %d values!"
-                % (X.shape[0], y.shape[0])
+                f"Mismatch: X has {X.shape[0]} examples but tau has {y.shape[0]} values."
                 )
 
     return X.astype(float), y.astype(float)
 
-def split_train_test(X, y, P, Q):
+def split_train_test(X : np.ndarray,
+                     y : np.ndarray,
+                     P : int, 
+                     Q : int
+                     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Split the dataset as is required in the assignment sheet:
         - Training set: the first P examples (idx 0...P-1)
         - Test set: next Q examples (idx P...Q-1)
 
     This guarantees that there is no leakage when training the model.
+
+    Args:
+        X : np.ndarray, y : np.ndarray
+            Full dataset with X shape (num_examples, N) and y shape (num_examples,).
+        P : int
+            Number of training examples.
+        Q : int
+            Number of test examples.
 
     Returns:
         X_train, y_train, X_test, y_test
@@ -80,10 +93,10 @@ def split_train_test(X, y, P, Q):
         raise ValueError("P and Q must be positive.")
     if P + Q > X.shape[0]:
         raise ValueError(
-                "Need at least P+Q=%d examples, but X has %d." % (P + Q, 
-                                                                  X.shape[0])
+                f"Need at least P+Q={P+Q} examples, but X has {X.shape[0]}."
                 )
-
+    
+    # Split the sets accordingly
     X_train = X[:P]
     y_train = y[:P]
     X_test = X[P:P + Q]
@@ -91,13 +104,24 @@ def split_train_test(X, y, P, Q):
 
     return X_train, y_train, X_test, y_test
 
-def compute_errors(X_train, y_train, X_test, y_test, W):
+def compute_errors(X_train : np.ndarray, 
+                   y_train : np.ndarray, 
+                   X_test : np.ndarray,
+                   y_test : np.ndarray, 
+                   W : np.ndarray
+                   ) -> tuple[float, float]:
     """
-    Compute:
+    Compute training and test errors using standard MSE loss function.
         E       = 0.5 * mean((sigma_train - y_train)^2)
         E_test  = 0.5 * mean((sigma_test - y_test)^2)
 
     Use the same mse_loss() function as in part_a.py
+    
+    Args:
+        X_train, y_train, X_test, y_test : np.ndarrays
+            Train/test split of the dataset.
+        W : np.ndarray
+            Weight matrix of shape (K, N) for the hidden layer (K hidden units).
     
     Returns:
         E, E_test : floats
@@ -110,9 +134,17 @@ def compute_errors(X_train, y_train, X_test, y_test, W):
     E = mse_loss(pred_train, y_train)
     E_test = mse_loss(pred_test, y_test)
 
-    return E, E_test
+    return float(E), float(E_test)
 
-def training_with_tracking(X_train, y_train, X_test, y_test, K, eta, tmax, seed):
+def training_with_tracking(X_train : np.ndarray, 
+                           y_train : np.ndarray,
+                           X_test : np.ndarray, 
+                           y_test : np.ndarray, 
+                           K : int, 
+                           eta : float, 
+                           tmax : int, 
+                           seed : int,
+                           ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     SGD training with a per-epoch tracking of E(t) and E_test(t). Practically 
     very useful to decide when to stop the training of the model for an optimal
@@ -127,14 +159,26 @@ def training_with_tracking(X_train, y_train, X_test, y_test, K, eta, tmax, seed)
         - Errors at t=0 (before any update takes place)
         - Erros after each epoch, up to t=tmax (maximum iteration budget)
 
+    Args:
+        X_train, y_train, X_test, y_test : np.ndarrays
+            Train/test splits.
+        K : int
+            Number of hidden units.
+        eta : int
+            Learning rate.
+        tmax : int
+            Number of maximum epochs allowed.
+        seed : int
+            RNG seed for reproducable results.
+
     Returns:
-        - W : np.ndarray with shape (K, N)
+        W : np.ndarray with shape (K, N)
             Array of final weights
-        - t_values : np.ndarray with shape (tmax+1,)
+        t_values : np.ndarray with shape (tmax+1,)
             Epochs (used for plotting later)
-        - E_train : np.ndarray with shape (tmax+1,)
+        E_train : np.ndarray with shape (tmax+1,)
             Training error for each epoch
-        - E_test : np.ndarray with shape (tmax+1,)
+        E_test : np.ndarray with shape (tmax+1,)
             Generalization error for each epoch
     """
     # Fetch dimentions
@@ -144,7 +188,7 @@ def training_with_tracking(X_train, y_train, X_test, y_test, K, eta, tmax, seed)
     # Set RNG
     rng = np.random.default_rng(seed)
 
-    # Initialize weights are normals with unit norm
+    # Initialize weights as normals with unit norm, see part_a.init_weights
     W = init_weights(K, N, rng)
 
     # Initialize storage arrays
@@ -174,8 +218,7 @@ def ensure_outdir(path):
     """
     Create output directory if it doesn't exist.
     """
-    if not os.path.isdir(path):
-        os.makedirs(path, exist_ok=True)
+    os.makedirs(path, exist_ok=True)
 
 def plotter_learning_curves(t, E_train, E_test, outpath):
     """
@@ -217,18 +260,19 @@ def plot_weights(W, outpath):
 
 def main():
     """
-    Entry point for Part (B) of the assignment.
+    Entry point for Part (B) of the assignment. Variables at runtime are 
+    introduced from config.py as globals. If you manually change them in this 
+    function, you risk breaking the code.
 
-    Steps this function performs (if needed):
-        1) Config override in case you need different parameters
-        2) Load xi/tau into scope
-        3) Split into train/test (first use P, then Q)
-        4) Train with a per-epoch tracker of the errors
-        5) Save plots
-        6) Print a short summary in CLI
-
+    Pipeline:
+        1) Create directory to store the results.
+        2) Load xi/tau from CSV.
+        3) Split into train/test using P and Q globals.
+        4) Train with online SGD and track E(t), E_test(t)
+        5) Save plots and print a short summary in CLI.
+    
     Note: variable names in CAPITAL letters denote global variables stored in
-    config.py. DO NOT modify them from here, instead use the aforementioned file.
+    config.py. Please update them using that file.
     """
     # Ensure storage directory exists
     ensure_outdir(OUTDIR)
@@ -251,9 +295,9 @@ def main():
 
     # CLI Summary
     print("Training complete.")
-    print("P=%d\tQ=%d\teta=%.5f\ttmax=%d\tseed=%d" % (P_TRAIN, Q_TEST, ETA, TMAX, SEED))
-    print("Final E: %.6f" % (E_train[-1],))
-    print("Final E_test: %.6f" % (E_test[-1],))
+    print(f"P={P_TRAIN}\tQ={Q_TEST}\teta={ETA:.5F}\ttmax={TMAX}\tseed={SEED}")
+    print(f"Final E: {E_train[-1]:.6f}")
+    print(f"Final E_test: {E_test[-1]:.6f}")
     print("Saved results in:", os.path.abspath(OUTDIR))
 
 if __name__ == "__main__":
