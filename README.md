@@ -19,6 +19,7 @@ This repository contains the assignments of the course, organized into self-cont
 │   ├── config.py
 │   ├── part_a.py
 │   ├── part_b.py
+│   ├── bonus.py
 │   ├── README.md
 │   ├── requirements.txt
 │   ├── results
